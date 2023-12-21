@@ -1,0 +1,133 @@
+const { BadRequestError, NotFoundError } = require("../errors");
+const bcrypt = require("bcrypt");
+const User = require("../models/user");
+const Otp = require("../models/otp");
+const { generateToken } = require("../utils/jwt");
+const { serviceResponse } = require("../utils/serviceResponse");
+const { generateOTP } = require("../utils/generateOtp");
+const { sendEmail } = require("../utils/sendMail");
+
+exports.signIn = async (data) => {
+  const user = await User.findOne({
+    email: data.email.toLocaleLowerCase(),
+  });
+
+  if (!user)
+    throw new NotFoundError(
+      `User with email ${data.email.toLocaleLowerCase()} not found`
+    );
+  let accessToken;
+
+  if (data.password) {
+    const isValidPassword = await bcrypt.compare(data.password, user.password);
+
+    if (!isValidPassword) {
+      throw new BadRequestError("Wrong password");
+    }
+    accessToken = await generateToken(user);
+    return serviceResponse(
+      200,
+      {
+        user: {
+          ...user.toObject(),
+          password: undefined,
+          createdAt: undefined,
+          updatedAt: undefined,
+          __v: undefined,
+        },
+        accessToken,
+      },
+      "Successfully signed in"
+    );
+  } else if (data.otp) {
+    const validOtp = await Otp.findOne({
+      email: data.email,
+      otp: data.otp,
+    });
+
+    await Otp.deleteOne({
+      email: data.email,
+      otp: data.otp,
+    });
+
+    if (!validOtp) throw new BadRequestError("Invalid OTP");
+
+    accessToken = await generateToken(user);
+
+    return serviceResponse(
+      200,
+      {
+        user: {
+          ...user.toObject(),
+          password: undefined,
+          createdAt: undefined,
+          updatedAt: undefined,
+          __v: undefined,
+        },
+        accessToken,
+      },
+      "Successfully signed in"
+    );
+  }
+};
+
+exports.signUp = async (userData) => {
+  // Generate token pair
+  userData.password = await bcrypt.hash(
+    userData.password,
+    Number(process.env.BCRYPT_SALT_ROUNDS)
+  );
+
+  const user = await User.create({
+    ...userData,
+    email: userData.email.toLocaleLowerCase(),
+    userName: userData.userName.toLocaleLowerCase(),
+  });
+
+  // Return your successful login response
+  return serviceResponse(
+    200,
+    {
+      user: {
+        ...user.toObject(),
+        password: undefined,
+        createdAt: undefined,
+        updatedAt: undefined,
+        __v: undefined,
+      },
+    },
+    "Successfully created succesfully"
+  );
+};
+
+exports.sendOtp = async (email) => {
+  let data = email.toLocaleLowerCase();
+  const [user, otpExists] = await Promise.all([
+    User.findOne({ email: data }),
+    Otp.findOne({ email: data }),
+  ]);
+
+  let otp = generateOTP(6);
+  if (otpExists) {
+    otpExists.otp = otp;
+    await otpExists.save();
+  } else {
+    await Otp.create({
+      email: data,
+      otp,
+    });
+  }
+
+  if (!user)
+    throw new NotFoundError(`User with emailId ${data} doesn't exists `);
+
+  let options = {
+    email: data,
+    message: `Your OTP  for login is : ${otp}`,
+    subject: `OTP  for login`,
+  };
+  await sendEmail(options);
+
+  // Return your successful login response
+  return serviceResponse(200, {}, "Otp sent succesfully");
+};
