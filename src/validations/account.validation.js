@@ -34,6 +34,15 @@ exports.signInValidator = [
     .withMessage("OTP must be 6 digits"),
 ];
 
+exports.emailOtpValidator = [
+  body("email").trim().isEmail().withMessage("Please enter a valid email Id"),
+  body("otp")
+    .isNumeric()
+    .withMessage("OTP must be a number")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("OTP must be 6 digits"),
+];
+
 exports.signupValidation = [
   body("email").trim().isEmail().withMessage("Please enter a valid email Id"),
 
