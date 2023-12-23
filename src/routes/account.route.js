@@ -5,6 +5,7 @@ const {
   signInValidator,
   signupValidation,
   emailValidation,
+  emailOtpValidator,
 } = require("../validations/account.validation");
 const {
   expressValidation,
@@ -20,5 +21,8 @@ accountRoute
 accountRoute
   .route("/sendOtp")
   .post(emailValidation, expressValidation, accountController.sendOtp);
+accountRoute
+  .route("/verifyEmail")
+  .post(emailOtpValidator, expressValidation, accountController.verifyEmail);
 
 module.exports = accountRoute;

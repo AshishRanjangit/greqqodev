@@ -6,6 +6,43 @@ const { generateToken } = require("../utils/jwt");
 const { serviceResponse } = require("../utils/serviceResponse");
 const { generateOTP } = require("../utils/generateOtp");
 const { sendEmail } = require("../utils/sendMail");
+const { promises } = require("nodemailer/lib/xoauth2");
+
+exports.sendEmailVerificationOtp = async (email) => {
+  let data = email.toLocaleLowerCase();
+  const [user, otpExists] = await Promise.all([
+    User.findOne({ email: data }),
+    Otp.findOne({ email: data }),
+  ]);
+
+  let otp = generateOTP(6);
+  if (otpExists) {
+    otpExists.otp = otp;
+    await otpExists.save();
+  } else {
+    await Otp.create({
+      email: data,
+      otp,
+    });
+  }
+
+  if (!user)
+    throw new NotFoundError(`User with emailId ${data} doesn't exists `);
+
+  let options = {
+    email: data,
+    message: `Your OTP  for email verification is : ${otp}`,
+    subject: `OTP  Email Verification`,
+  };
+  sendEmail(options);
+
+  // Return your successful login response
+  return serviceResponse(
+    200,
+    {},
+    `Email containing OTP for email verification sent succesfully to ${data}`
+  );
+};
 
 exports.signIn = async (data) => {
   const user = await User.findOne({
@@ -16,6 +53,11 @@ exports.signIn = async (data) => {
     throw new NotFoundError(
       `User with email ${data.email.toLocaleLowerCase()} not found`
     );
+
+  if (user.isEmailVerified === false) {
+    let response = await this.sendEmailVerificationOtp(data.email);
+    return response;
+  }
   let accessToken;
 
   if (data.password) {
@@ -33,6 +75,8 @@ exports.signIn = async (data) => {
           password: undefined,
           createdAt: undefined,
           updatedAt: undefined,
+          role: undefined,
+          isEmailVerified: undefined,
           __v: undefined,
         },
         accessToken,
@@ -71,6 +115,44 @@ exports.signIn = async (data) => {
   }
 };
 
+exports.verifyEmail = async (data) => {
+  let user = await User.findOne({
+    email: data.email.toLocaleLowerCase(),
+  });
+  data.otp;
+  const validOtp = await Otp.findOne({
+    email: data.email,
+    otp: data.otp,
+  });
+
+  await Otp.deleteOne({
+    email: data.email,
+    otp: data.otp,
+  });
+
+  if (!validOtp) throw new BadRequestError("Invalid OTP");
+
+  user.isEmailVerified = true;
+
+  [accessToken, user] = await Promise.all([generateToken(user), user.save()]);
+  return serviceResponse(
+    200,
+    {
+      user: {
+        ...user.toObject(),
+        password: undefined,
+        createdAt: undefined,
+        updatedAt: undefined,
+        role: undefined,
+        isEmailVerified: undefined,
+        __v: undefined,
+      },
+      accessToken,
+    },
+    "Email verification successfull user loggedIn"
+  );
+};
+
 exports.signUp = async (userData) => {
   // Generate token pair
   userData.password = await bcrypt.hash(
@@ -84,20 +166,8 @@ exports.signUp = async (userData) => {
     userName: userData.userName.toLocaleLowerCase(),
   });
 
-  // Return your successful login response
-  return serviceResponse(
-    200,
-    {
-      user: {
-        ...user.toObject(),
-        password: undefined,
-        createdAt: undefined,
-        updatedAt: undefined,
-        __v: undefined,
-      },
-    },
-    "Successfully created succesfully"
-  );
+  let response = await this.sendEmailVerificationOtp(userData.email);
+  return response;
 };
 
 exports.sendOtp = async (email) => {
@@ -126,8 +196,12 @@ exports.sendOtp = async (email) => {
     message: `Your OTP  for login is : ${otp}`,
     subject: `OTP  for login`,
   };
-  await sendEmail(options);
+  sendEmail(options);
 
   // Return your successful login response
-  return serviceResponse(200, {}, "Otp sent succesfully");
+  return serviceResponse(
+    200,
+    {},
+    `Email containing OTP successfully sent to ${data}`
+  );
 };
