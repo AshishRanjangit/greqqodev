@@ -8,12 +8,22 @@ exports.signIn = async (req, res) => {
 
   return sendResponse(res, statusCode, data, message);
 };
+exports.verifyEmail = async (req, res) => {
+  const { email, otp } = req.body;
+  const response = await accountService.verifyEmail({ email, otp });
+
+  const { statusCode, data, message } = response;
+
+  return sendResponse(res, statusCode, data, message);
+};
 exports.signUp = async (req, res) => {
   const userData = req.body;
 
   console.log(userData);
 
   const response = await accountService.signUp(userData);
+
+  console.log(response);
 
   const { statusCode, data, message } = response;
 
