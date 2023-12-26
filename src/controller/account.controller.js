@@ -16,6 +16,7 @@ exports.verifyEmail = async (req, res) => {
 
   return sendResponse(res, statusCode, data, message);
 };
+
 exports.signUp = async (req, res) => {
   const userData = req.body;
 
@@ -37,5 +38,20 @@ exports.sendOtp = async (req, res) => {
 
   const { statusCode, data, message } = response;
 
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getUser = async (req, res) => {
+  const userId = req.user.userId;
+  const response = await accountService.getUser(userId);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.updateUser = async (req, res) => {
+  const userId = req.user.userId;
+  const userData = req.body;
+  const response = await accountService.updateUser(userId, userData);
+  const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
