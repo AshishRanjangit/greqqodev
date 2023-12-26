@@ -9,7 +9,9 @@ const {
 const {
   expressValidation,
 } = require("../middlewares/expressValidationMiddleware");
+const { verifyToken } = require("../middlewares/verifyAuth");
 const adminRoute = express.Router();
 adminRoute.route("/createCategory").post(adminController.createCategory);
 adminRoute.route("/createSubcategory").post(adminController.createSubcategory);
+adminRoute.route("/getAdds").get(verifyToken, adminController.getAllAdds);
 module.exports = adminRoute;

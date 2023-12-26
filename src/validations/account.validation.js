@@ -69,3 +69,41 @@ exports.signupValidation = [
     .isString()
     .withMessage("EmployeeId must be a string"),
 ];
+
+exports.updateUserValidation = [
+  body("email").trim().isEmail().withMessage("Please enter a valid email Id"),
+
+  body("userName").trim().notEmpty().withMessage("userName is required"),
+  body("phoneNumber")
+    .trim()
+    .isLength({ min: 10, max: 10 })
+    .withMessage("Phone number must be of 10 digits"),
+  body("company")
+    .optional()
+    .isString()
+    .withMessage("EmployeeId must be a string"),
+  body("profilePicture")
+    .optional()
+    .isString()
+    .withMessage("profilePicture  must be a string Url"),
+  body("city").optional().isString().withMessage("city  must be a string."),
+  body("state").optional().isString().withMessage("state  must be a string"),
+  body("pincode")
+    .optional()
+    .isNumeric()
+    .withMessage("pincode  must be a number")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("pincode must be of 6 digits"),
+  body("tags")
+    .optional()
+    .isArray()
+    .withMessage("Tags must be an array")
+    .if((value, { req }) => req.body.tags)
+    .custom((tags, { req }) => {
+      // Check if all elements in the array are strings
+      if (!tags.every((tag) => typeof tag === "string")) {
+        throw new Error("Each tag must be a string");
+      }
+      return true;
+    }),
+];

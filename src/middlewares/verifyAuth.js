@@ -19,3 +19,11 @@ exports.verifyToken = (req, res, next) => {
     throw new NotAuthorizedError("Oops the access-token is missing!");
   }
 };
+exports.verifyRole = (...role) => {
+  let userRole = req.user.role;
+  if (role.includes(userRole)) {
+    next();
+  } else {
+    throw new AccessForbiddenError("User is not allowed see this resource");
+  }
+};

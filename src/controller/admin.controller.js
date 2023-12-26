@@ -22,3 +22,50 @@ exports.createSubcategory = async (req, res) => {
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+exports.getAllAdds = async (req, res) => {
+  let {
+    page,
+    limit,
+    status,
+    city,
+    state,
+    category,
+    subcategory,
+    fuel,
+    transmission,
+    brand,
+    smallPrice,
+    bigPrice,
+    locality,
+    keyword,
+    occupancy,
+    construnction,
+    listedBy,
+  } = req.query;
+  page = page ? page : 1;
+  limit = limit ? limit : 10;
+  let queryData = {
+    page,
+    limit,
+    status,
+    city,
+    state,
+    category,
+    subcategory,
+    fuel,
+    transmission,
+    brand,
+    smallPrice,
+    bigPrice,
+    locality,
+    keyword,
+    occupancy,
+    construnction,
+    listedBy,
+  };
+  let userId = req.user.userId;
+
+  const response = await adminService.getAllAdds(queryData, userId);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};

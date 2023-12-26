@@ -116,17 +116,18 @@ exports.signIn = async (data) => {
 };
 
 exports.verifyEmail = async (data) => {
+  let email = data.email.toLocaleLowerCase();
   let user = await User.findOne({
-    email: data.email.toLocaleLowerCase(),
+    email,
   });
   data.otp;
   const validOtp = await Otp.findOne({
-    email: data.email,
+    email,
     otp: data.otp,
   });
 
   await Otp.deleteOne({
-    email: data.email,
+    email,
     otp: data.otp,
   });
 
@@ -204,4 +205,24 @@ exports.sendOtp = async (email) => {
     {},
     `Email containing OTP successfully sent to ${data}`
   );
+};
+
+exports.getUser = async (userId) => {
+  let user = await User.findById(userId).select(
+    "-password -role -isActive -createdAt -updatedAt -isEmailVerified -__v"
+  );
+
+  if (!user) throw new NotFoundError(`User with id doesn't exists `);
+
+  // Return your successful login response
+  return serviceResponse(200, { user }, `User details fetched`);
+};
+
+exports.updateUser = async (userId, userData) => {
+  console.log("This is userData", userData);
+  let user = await User.findByIdAndUpdate(userId, { $set: userData });
+  if (!user) throw new NotFoundError(`User with id doesn't exists `);
+
+  // Return your successful login response
+  return serviceResponse(200, {}, `User details updated`);
 };

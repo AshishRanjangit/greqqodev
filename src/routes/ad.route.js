@@ -1,6 +1,6 @@
 const express = require("express");
 const adController = require("../controller/ad.controller");
-// const { verifyToken } = require("../middlewares/verifyAuth");
+const { verifyToken } = require("../middlewares/verifyAuth");
 const {
   signInValidator,
   signupValidation,
@@ -12,4 +12,9 @@ const {
 const adRoute = express.Router();
 adRoute.route("/getCategory").get(adController.getCategory);
 adRoute.route("/getSubcategory").get(adController.getSubcategory);
+adRoute.route("/postAd").post(verifyToken, adController.postAd);
+adRoute.route("/updateAd/:id").patch(verifyToken, adController.updateAd);
+adRoute.route("/deleteAd/:id").delete(verifyToken, adController.deleteAd);
+adRoute.route("/resendOtp").post(verifyToken, adController.sendOtpAd);
+adRoute.route("/verifyOtp").post(verifyToken, adController.verifyEmailAd);
 module.exports = adRoute;
