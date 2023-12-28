@@ -6,10 +6,12 @@ const {
   signupValidation,
   emailValidation,
   emailOtpValidator,
+  updateUserValidation,
 } = require("../validations/account.validation");
 const {
   expressValidation,
 } = require("../middlewares/expressValidationMiddleware");
+const { verifyToken } = require("../middlewares/verifyAuth");
 const accountRoute = express.Router();
 
 accountRoute
@@ -24,5 +26,14 @@ accountRoute
 accountRoute
   .route("/verifyEmail")
   .post(emailOtpValidator, expressValidation, accountController.verifyEmail);
+accountRoute.route("/getUser").get(verifyToken, accountController.getUser);
+accountRoute
+  .route("/updateUser")
+  .patch(
+    verifyToken,
+    updateUserValidation,
+    expressValidation,
+    accountController.updateUser
+  );
 
 module.exports = accountRoute;
