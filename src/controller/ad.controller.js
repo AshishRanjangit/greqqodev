@@ -59,3 +59,110 @@ exports.verifyEmailAd = async (req, res) => {
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+
+exports.getAllAdsUser = async (req, res) => {
+  let {
+    page,
+    limit,
+    status,
+    city,
+    state,
+    category,
+    subcategory,
+    fuel,
+    transmission,
+    brand,
+    smallPrice,
+    bigPrice,
+    locality,
+    keyword,
+    occupancy,
+    construnction,
+    listedBy,
+  } = req.query;
+  page = page ? page : 1;
+  limit = limit ? limit : 10;
+  let queryData = {
+    page,
+    limit,
+    status,
+    city,
+    state,
+    category,
+    subcategory,
+    fuel,
+    transmission,
+    brand,
+    smallPrice,
+    bigPrice,
+    locality,
+    keyword,
+    occupancy,
+    construnction,
+    listedBy,
+  };
+  let userId = req.user.userId;
+
+  console.log("This is userId", userId);
+
+  const response = await adService.getAllAdsUser(queryData, userId);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getAllAds = async (req, res) => {
+  let {
+    page,
+    limit,
+    status,
+    city,
+    state,
+    category,
+    subcategory,
+    fuel,
+    transmission,
+    brand,
+    smallPrice,
+    bigPrice,
+    locality,
+    keyword,
+    occupancy,
+    construnction,
+    listedBy,
+  } = req.query;
+  page = page ? page : 1;
+  limit = limit ? limit : 10;
+  let queryData = {
+    page,
+    limit,
+    status,
+    city,
+    state,
+    category,
+    subcategory,
+    fuel,
+    transmission,
+    brand,
+    smallPrice,
+    bigPrice,
+    locality,
+    keyword,
+    occupancy,
+    construnction,
+    listedBy,
+  };
+  let isloggedIn = req.isloggedIn;
+
+  const response = await adService.getAllAds(queryData, isloggedIn);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getAd = async (req, res) => {
+  let isloggedIn = req.isloggedIn;
+  let id = req.params.adId;
+
+  const response = await adService.getAd(id, isloggedIn);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};

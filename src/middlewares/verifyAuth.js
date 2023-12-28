@@ -19,11 +19,35 @@ exports.verifyToken = (req, res, next) => {
     throw new NotAuthorizedError("Oops the access-token is missing!");
   }
 };
-exports.verifyRole = (...role) => {
-  let userRole = req.user.role;
-  if (role.includes(userRole)) {
+exports.verifyRole = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        statusCode: 403,
+        success: false,
+        type: "error",
+        message: "user is not allowed to access this resource",
+      });
+    }
     next();
+  };
+};
+exports.isLoggedIn = (req, res, next) => {
+  const tokenHeader = req.headers["authorization"];
+  if (tokenHeader) {
+    const token = tokenHeader.split(" ")[1];
+
+    jwt.verify(token, accessTokenKey, (err, user) => {
+      if (err) {
+        req.isloggedIn = false;
+        return next();
+      }
+      req.user = user;
+      req.isloggedIn = true;
+      return next();
+    });
   } else {
-    throw new AccessForbiddenError("User is not allowed see this resource");
+    req.isloggedIn = false;
+    return next();
   }
 };

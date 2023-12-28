@@ -22,6 +22,7 @@ exports.createSubcategory = async (req, res) => {
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+
 exports.getAllAdds = async (req, res) => {
   let {
     page,
@@ -41,6 +42,7 @@ exports.getAllAdds = async (req, res) => {
     occupancy,
     construnction,
     listedBy,
+    user,
   } = req.query;
   page = page ? page : 1;
   limit = limit ? limit : 10;
@@ -62,10 +64,41 @@ exports.getAllAdds = async (req, res) => {
     occupancy,
     construnction,
     listedBy,
+    user,
   };
   let userId = req.user.userId;
 
-  const response = await adminService.getAllAdds(queryData, userId);
+  const response = await adminService.getAllAdds(queryData);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.updateStatusAd = async (req, res) => {
+  let id = req.params.adId;
+  let status = req.body.status;
+  const response = await adminService.updateStatusAd(id, status);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getAd = async (req, res) => {
+  let id = req.params.adId;
+
+  const response = await adminService.getAd(id);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getUsers = async (req, res) => {
+  let { page, limit, keyword } = req.query;
+  page = page ? page : 1;
+  limit = limit ? limit : 10;
+  let queryData = {
+    page,
+    limit,
+    keyword,
+  };
+  const response = await adminService.getUsers(queryData);
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };

@@ -47,10 +47,11 @@ exports.createSubcategory = async (data) => {
   return serviceResponse(200, {}, "Subcategory created succefully");
 };
 
-exports.getAllAdds = async (queryData, userId) => {
+exports.getAllAdds = async (queryData) => {
   const query = {};
 
   if (queryData.status) query.status = queryData.status;
+  if (queryData.user) query.user = queryData.user;
   if (queryData.category) query.category = queryData.category;
   if (queryData.transmission) query.transmission = queryData.transmission;
   if (queryData.fuel) query.fuel = queryData.fuel;
@@ -71,7 +72,7 @@ exports.getAllAdds = async (queryData, userId) => {
   if (queryData.city)
     query.locality = { $regex: queryData.locality, $options: "i" };
   if (queryData.smallPrice && queryData.bigPrice) {
-    if (queryData.smallPrice > queryData.bigPrice)
+    if (Number(queryData.smallPrice) > Number(queryData.bigPrice))
       throw new BadRequestError(
         "small price cannot be greater than equal to bigPrice"
       );
@@ -104,4 +105,45 @@ exports.getAllAdds = async (queryData, userId) => {
   ]);
 
   return serviceResponse(200, { ads, adsCount }, "Ads fetched succefully");
+};
+
+exports.updateStatusAd = async (id, status) => {
+  let ad = await Ad.findByIdAndUpdate(id, { $set: status });
+  if (ad) {
+    throw new BadRequestError("No such ads found with this Id");
+  }
+  return serviceResponse(200, { ad }, "Ad status updated succesfully");
+};
+
+exports.getAd = async (id) => {
+  let ad = await Ad.findById(id)
+    .populate(
+      "user",
+      "userName email  phoneNumber  company state city address pincode "
+    )
+    .populate("category", "name")
+    .populate("subcategory", "name");
+  if (ad) {
+    throw new BadRequestError("No such ads found with this Id");
+  }
+  return serviceResponse(200, { ad }, "Ad fetched succefully");
+};
+
+exports.getUsers = async (queryData) => {
+  const query = {};
+  if (queryData.keyword) {
+    query["$or"] = [
+      { description: { $regex: queryData.keyword, $options: "i" } }, // case-insensitive
+      { title: { $regex: queryData.keyword, $options: "i" } },
+      { locality: { $regex: queryData.keyword, $options: "i" } },
+      { brand: { $regex: queryData.keyword, $options: "i" } },
+    ];
+  }
+  let users = await User.find(query)
+    .select("-password")
+    .sort({ createdAt: -1 })
+    .limit(queryData.limit)
+    .skip(queryData.limit * (queryData.page - 1));
+
+  return serviceResponse(200, { users }, "users fetched succefully");
 };
