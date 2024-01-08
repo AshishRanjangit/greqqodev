@@ -11,12 +11,14 @@ const {
 } = require("../middlewares/expressValidationMiddleware");
 const { verifyToken, verifyRole } = require("../middlewares/verifyAuth");
 const adminRoute = express.Router();
-adminRoute
-  .route("/createCategory")
-  .post(verifyToken, verifyRole("admin"), adminController.createCategory);
-adminRoute
-  .route("/createSubcategory")
-  .post(verifyToken, verifyRole("admin"), adminController.createSubcategory);
+adminRoute.route("/createCategory").post(
+  // verifyToken, verifyRole("admin"),
+  adminController.createCategory
+);
+adminRoute.route("/createSubcategory").post(
+  // verifyToken, verifyRole("admin"),
+  adminController.createSubcategory
+);
 adminRoute
   .route("/getAdds")
   .get(verifyToken, verifyRole("admin"), adminController.getAllAdds);

@@ -9,6 +9,7 @@ const Category = require("../models/category");
 const Subcategory = require("../models/subcategory");
 const Ad = require("../models/ad");
 const User = require("../models/user");
+const { CategoryEnum, SubcategoryEnum } = require("../../enums");
 
 exports.getCategory = async () => {
   const category = await Category.find().select("name");
@@ -34,178 +35,958 @@ exports.getSubcategory = async (data) => {
 
 exports.postAd = async (userId, data) => {
   if (data.category) {
-    console.log("userId>>>>>>>>>>>>>", userId);
     let user = await User.findById(userId).select("email");
-
-    console.log("this is userdfhd>>>>>>>", user);
-    let category = await Category.findById(data.category);
+    let category = await Category.findById(data.category).select("name");
     if (!category) throw new BadRequestError("No such category exists");
     if (!data.subcategory) throw new BadRequestError("Subcategory is required");
     let subcategory = await Subcategory.findOne({
       _id: data.subcategory,
       category: data.category,
     });
-
     if (!subcategory) throw new BadRequestError("No such subcategory exists");
+    if (category.name === CategoryEnum.CAR) {
+      if (subcategory.name === SubcategoryEnum.CAR) {
+        const requiredFields = [
+          "title",
+          "category",
+          "subcategory",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "fuel",
+          "transmission",
+          "variant",
+          "rtoCity",
+          "ownerShip",
+          "manufacturingYear",
+          "totalDriven",
+          "city",
+          "state",
+        ];
 
-    if (subcategory.name === "car") {
-      const requiredFields = [
-        "title",
-        "description",
-        "price",
-        "brand",
-        "model",
-        "fuel",
-        "transmission",
-        "variant",
-        "manufacturingYear",
-        "ownerShip",
-        "manufacturingYear",
-        "totalDriven",
-        "city",
-        "state",
-      ];
-
-      for (const field of requiredFields) {
-        if (data[field] === undefined) {
-          throw new BadRequestError(`${field} is a required field.`);
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
         }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
       }
-      let ad = await Ad.create({ ...data, user: userId });
-      if (!ad)
-        throw new BadRequestError("Something Went Wrong. Please try again.");
-      this.sendOtpAd(user.email);
-      return serviceResponse(
-        200,
-        { id: ad._id },
-        `An Otp for verification has been sent to your email: ${user.email}`
-      );
     }
-    if (
-      subcategory.name === "for rent: house & appartments" ||
-      subcategory.name === "for sale: house & appartments"
-    ) {
-      const requiredFields = [
-        "title",
-        "description",
-        "price",
-        "type",
-        "furnishing",
-        "bedrooms",
-        "bathrooms",
-        "area",
-        "city",
-        "occupancy",
-        "bachelorAllowed",
-        "totalFloor",
-        "carParking",
-        "facing",
-        "construnction",
-        "city",
-        "state",
-        "locality",
-      ];
-      for (const field of requiredFields) {
-        if (data[field] === undefined) {
-          throw new BadRequestError(`${field} is a required field.`);
+    if (category.name === CategoryEnum.ELECTRONICS) {
+      if (
+        subcategory.name === SubcategoryEnum.LAPTOP ||
+        subcategory.name === SubcategoryEnum.COMPUTERACCESSORIES ||
+        subcategory.name === SubcategoryEnum.TVSPEAKERS ||
+        subcategory.name === SubcategoryEnum.FRIDGE ||
+        subcategory.name === SubcategoryEnum.WASHINGMACHINE ||
+        subcategory.name === SubcategoryEnum.camera ||
+        subcategory.name === SubcategoryEnum.AC ||
+        subcategory.name === SubcategoryEnum.OTHERAPPLIANCE
+      ) {
+        const requiredFields = [
+          "title",
+          "description",
+          "category",
+          "subcategory",
+          "price",
+          "brand",
+          "model",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
         }
+
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
       }
-      let ad = await Ad.create({ ...data, user: userId });
-      if (!ad)
-        throw new BadRequestError("Something Went Wrong. Please try again.");
-      this.sendOtpAd(user.email);
-      return serviceResponse(
-        200,
-        { id: ad._id },
-        `An Otp for verification has been sent to your email: ${user.email}`
-      );
+    }
+    if (category.name === CategoryEnum.MOBILEGADGET) {
+      if (
+        subcategory.name === SubcategoryEnum.MOBILE ||
+        subcategory.name === SubcategoryEnum.WATCH ||
+        subcategory.name === SubcategoryEnum.TABLET ||
+        subcategory.name === SubcategoryEnum.GAMECONSOLE ||
+        subcategory.name === SubcategoryEnum.ACCESSORY
+      ) {
+        const requiredFields = [
+          "title",
+          "category",
+          "subcategory",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+    }
+    if (category.name === CategoryEnum.FURNITURE) {
+      if (
+        subcategory.name === SubcategoryEnum.CHAIR ||
+        subcategory.name === SubcategoryEnum.BED ||
+        subcategory.name === SubcategoryEnum.HOMEDECOR ||
+        subcategory.name === SubcategoryEnum.OTHERHOUSEHOLD
+      ) {
+        const requiredFields = [
+          "title",
+          "description",
+          "price",
+          "brand",
+          "category",
+          "subcategory",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+      if (subcategory.name === SubcategoryEnum.SOFA) {
+        const requiredFields = [
+          "title",
+          "description",
+          "price",
+          "brand",
+          "sitting",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+
+        console.log("filtered data>>>", filteredData);
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+    }
+    if (category.name === CategoryEnum.BIKE) {
+      if (
+        subcategory.name === SubcategoryEnum.MOTORCYCLE ||
+        subcategory.name === SubcategoryEnum.SCOOTER
+      ) {
+        const requiredFields = [
+          "title",
+          "description",
+          "price",
+          "brand",
+          "category",
+          "subcategory",
+          "model",
+          "fuel",
+          "rtoCity",
+          "manufacturingYear",
+          "ownerShip",
+          "totalDriven",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+    }
+    if (category.name === CategoryEnum.OTHERVEHICLE) {
+      if (subcategory.name === SubcategoryEnum.BYCYCLE) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "manufacturingYear",
+          "ownerShip",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+      if (subcategory.name === SubcategoryEnum.KIDSVEHICLE) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "manufacturingYear",
+          "ownerShip",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+    }
+    if (category.name === CategoryEnum.REALSTATE) {
+      if (
+        subcategory.name === SubcategoryEnum.REALSTATERENT ||
+        subcategory.name === SubcategoryEnum.REALSTATESALE
+      ) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "type",
+          "furnishing",
+          "bedrooms",
+          "bathrooms",
+          "area",
+          "occupancy",
+          "bachelorAllowed",
+          "totalFloor",
+          "carParking",
+          "facing",
+          "construnction",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+      if (subcategory.name === SubcategoryEnum.PLOT) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "type",
+          "length",
+          "breadth",
+          "area",
+          "facing",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+      if (subcategory.name === SubcategoryEnum.LAND) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "type",
+          "area",
+          "city",
+          "facing",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
+      if (subcategory.name === SubcategoryEnum.OTHER) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({ ...filteredData, user: userId });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      }
     }
   } else {
     throw new BadRequestError("Category is required");
   }
 };
 
+// exports.updateAd = async (id, data) => {
+//   if (data.category) {
+//     let category = await Category.findById(data.category);
+//     if (!category) throw new BadRequestError("No such category exists");
+//     if (!data.subcategory) throw new BadRequestError("Subcategory is required");
+//     let subcategory = await Subcategory.findOne({
+//       _id: data.subcategory,
+//       category: data.category,
+//     });
+
+//     if (!subcategory) throw new BadRequestError("No such subcategory exists");
+
+//     if (subcategory.name === "car") {
+//       const requiredFields = [
+//         "title",
+//         "description",
+//         "price",
+//         "brand",
+//         "model",
+//         "fuel",
+//         "transmission",
+//         "variant",
+//         "manufacturingYear",
+//         "ownerShip",
+//         "manufacturingYear",
+//         "totalDriven",
+//         "city",
+//         "state",
+//       ];
+
+//       for (const field of requiredFields) {
+//         if (data[field] === undefined) {
+//           throw new BadRequestError(`${field} is a required field.`);
+//         }
+//       }
+//       let ad = await Ad.findByIdAndUpdate(id, { $set: { ...data } });
+//       if (!ad)
+//         throw new BadRequestError("Something Went Wrong. Please try again.");
+
+//       return serviceResponse(200, {}, "Ad updated successfully");
+//     }
+//     if (
+//       subcategory.name === "for rent: house & appartments" ||
+//       subcategory.name === "for sale: house & appartments"
+//     ) {
+//       const requiredFields = [
+//         "title",
+//         "description",
+//         "price",
+//         "type",
+//         "furnishing",
+//         "bedrooms",
+//         "bathrooms",
+//         "area",
+//         "city",
+//         "occupancy",
+//         "bachelorAllowed",
+//         "totalFloor",
+//         "carParking",
+//         "facing",
+//         "construnction",
+//         "city",
+//         "state",
+//         "locality",
+//       ];
+//       for (const field of requiredFields) {
+//         if (data[field] === undefined) {
+//           throw new BadRequestError(`${field} is a required field.`);
+//         }
+//       }
+//       let ad = await Ad.findByIdAndUpdate(id, { $set: { ...data } });
+
+//       if (!ad)
+//         throw new BadRequestError("Something Went Wrong. Please try again.");
+
+//       return serviceResponse(200, {}, "Ad updated successfully");
+//     }
+//   } else {
+//     throw new BadRequestError("Category is required");
+//   }
+// };
+
 exports.updateAd = async (id, data) => {
   if (data.category) {
-    let category = await Category.findById(data.category);
+    let category = await Category.findById(data.category).select("name");
     if (!category) throw new BadRequestError("No such category exists");
     if (!data.subcategory) throw new BadRequestError("Subcategory is required");
     let subcategory = await Subcategory.findOne({
       _id: data.subcategory,
       category: data.category,
     });
-
     if (!subcategory) throw new BadRequestError("No such subcategory exists");
+    if (category.name === CategoryEnum.CAR) {
+      if (subcategory.name === SubcategoryEnum.CAR) {
+        const requiredFields = [
+          "title",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "fuel",
+          "transmission",
+          "variant",
+          "rtoCity",
+          "ownerShip",
+          "manufacturingYear",
+          "totalDriven",
+          "city",
+          "state",
+        ];
 
-    if (subcategory.name === "car") {
-      const requiredFields = [
-        "title",
-        "description",
-        "price",
-        "brand",
-        "model",
-        "fuel",
-        "transmission",
-        "variant",
-        "manufacturingYear",
-        "ownerShip",
-        "manufacturingYear",
-        "totalDriven",
-        "city",
-        "state",
-      ];
-
-      for (const field of requiredFields) {
-        if (data[field] === undefined) {
-          throw new BadRequestError(`${field} is a required field.`);
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
         }
+        let ad = await Ad.findByIdAndUpdate(id, { $set: { ...filteredData } });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
       }
-
-      console.log(
-        "This is Id dslkfhjsdhfdjfhdjkhfd>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-        id
-      );
-      let ad = await Ad.findByIdAndUpdate(id, { $set: { ...data } });
-      if (!ad)
-        throw new BadRequestError("Something Went Wrong. Please try again.");
-
-      return serviceResponse(200, {}, "Ad updated successfully");
     }
-    if (
-      subcategory.name === "for rent: house & appartments" ||
-      subcategory.name === "for sale: house & appartments"
-    ) {
-      const requiredFields = [
-        "title",
-        "description",
-        "price",
-        "type",
-        "furnishing",
-        "bedrooms",
-        "bathrooms",
-        "area",
-        "city",
-        "occupancy",
-        "bachelorAllowed",
-        "totalFloor",
-        "carParking",
-        "facing",
-        "construnction",
-        "city",
-        "state",
-        "locality",
-      ];
-      for (const field of requiredFields) {
-        if (data[field] === undefined) {
-          throw new BadRequestError(`${field} is a required field.`);
+    if (category.name === CategoryEnum.ELECTRONICS) {
+      if (
+        subcategory.name === SubcategoryEnum.LAPTOP ||
+        subcategory.name === SubcategoryEnum.COMPUTERACCESSORIES ||
+        subcategory.name === SubcategoryEnum.TVSPEAKERS ||
+        subcategory.name === SubcategoryEnum.FRIDGE ||
+        subcategory.name === SubcategoryEnum.WASHINGMACHINE ||
+        subcategory.name === SubcategoryEnum.camera ||
+        subcategory.name === SubcategoryEnum.AC ||
+        subcategory.name === SubcategoryEnum.OTHERAPPLIANCE
+      ) {
+        const requiredFields = [
+          "title",
+          "description",
+          "category",
+          "subcategory",
+          "price",
+          "brand",
+          "model",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
         }
+
+        let ad = await Ad.findByIdAndUpdate(id, { $set: { ...filteredData } });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
       }
-      let ad = await Ad.findByIdAndUpdate(id, { $set: { ...data } });
+    }
+    if (category.name === CategoryEnum.MOBILEGADGET) {
+      if (
+        subcategory.name === SubcategoryEnum.MOBILE ||
+        subcategory.name === SubcategoryEnum.WATCH ||
+        subcategory.name === SubcategoryEnum.TABLET ||
+        subcategory.name === SubcategoryEnum.GAMECONSOLE ||
+        subcategory.name === SubcategoryEnum.ACCESSORY
+      ) {
+        const requiredFields = [
+          "title",
+          "category",
+          "subcategory",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
 
-      if (!ad)
-        throw new BadRequestError("Something Went Wrong. Please try again.");
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, { $set: { ...filteredData } });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+    }
+    if (category.name === CategoryEnum.FURNITURE) {
+      if (
+        subcategory.name === SubcategoryEnum.CHAIR ||
+        subcategory.name === SubcategoryEnum.BED ||
+        subcategory.name === SubcategoryEnum.HOMEDECOR ||
+        subcategory.name === SubcategoryEnum.OTHERHOUSEHOLD
+      ) {
+        const requiredFields = [
+          "title",
+          "description",
+          "price",
+          "brand",
+          "category",
+          "subcategory",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
 
-      return serviceResponse(200, {}, "Ad updated successfully");
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, { $set: { ...filteredData } });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+      if (subcategory.name === SubcategoryEnum.SOFA) {
+        const requiredFields = [
+          "title",
+          "description",
+          "price",
+          "brand",
+          "sitting",
+          "purchasedYear",
+          "condition",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+
+        let ad = await Ad.findByIdAndUpdate(id, { $set: { ...filteredData } });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+    }
+    if (category.name === CategoryEnum.BIKE) {
+      if (
+        subcategory.name === SubcategoryEnum.MOTORCYCLE ||
+        subcategory.name === SubcategoryEnum.SCOOTER
+      ) {
+        const requiredFields = [
+          "title",
+          "description",
+          "price",
+          "brand",
+          "category",
+          "subcategory",
+          "model",
+          "fuel",
+          "rtoCity",
+          "manufacturingYear",
+          "ownerShip",
+          "totalDriven",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, {
+          $set: { ...filteredData },
+        });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+    }
+    if (category.name === CategoryEnum.OTHERVEHICLE) {
+      if (subcategory.name === SubcategoryEnum.BYCYCLE) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "manufacturingYear",
+          "ownerShip",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, {
+          $set: { ...filteredData },
+        });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+      if (subcategory.name === SubcategoryEnum.KIDSVEHICLE) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "brand",
+          "model",
+          "manufacturingYear",
+          "ownerShip",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, {
+          $set: { ...filteredData },
+        });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+    }
+    if (category.name === CategoryEnum.REALSTATE) {
+      if (
+        subcategory.name === SubcategoryEnum.REALSTATERENT ||
+        subcategory.name === SubcategoryEnum.REALSTATESALE
+      ) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "type",
+          "furnishing",
+          "bedrooms",
+          "bathrooms",
+          "area",
+          "occupancy",
+          "bachelorAllowed",
+          "totalFloor",
+          "carParking",
+          "facing",
+          "construnction",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, {
+          $set: { ...filteredData },
+        });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+      if (subcategory.name === SubcategoryEnum.PLOT) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "type",
+          "length",
+          "breadth",
+          "area",
+          "facing",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, {
+          $set: { ...filteredData },
+        });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+      if (subcategory.name === SubcategoryEnum.LAND) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "type",
+          "area",
+          "city",
+          "facing",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, {
+          $set: { ...filteredData },
+        });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
+      if (subcategory.name === SubcategoryEnum.OTHER) {
+        const requiredFields = [
+          "category",
+          "subcategory",
+          "title",
+          "description",
+          "price",
+          "city",
+          "state",
+          "locality",
+        ];
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+        let ad = await Ad.findByIdAndUpdate(id, {
+          $set: { ...filteredData },
+        });
+        if (!ad) throw new BadRequestError("Wrong Ad Id");
+        return serviceResponse(200, {}, `Ad updated successfully`);
+      }
     }
   } else {
     throw new BadRequestError("Category is required");
@@ -285,7 +1066,7 @@ exports.verifyEmailAd = async (data) => {
 exports.getAllAdsUser = async (queryData, userId) => {
   const query = {};
   query.isBlocked = false;
-  query.isDeleted = false;
+  // query.isDeleted = false;
   query.user = userId;
   if (queryData.status) query.status = queryData.status;
   if (queryData.category) query.category = queryData.category;
@@ -304,8 +1085,8 @@ exports.getAllAdsUser = async (queryData, userId) => {
     ];
   }
   if (queryData.city) query.status = { $regex: queryData.city, $options: "i" };
-  if (queryData.city) query.state = { $regex: queryData.state, $options: "i" };
-  if (queryData.city)
+  if (queryData.state) query.state = { $regex: queryData.state, $options: "i" };
+  if (queryData.locality)
     query.locality = { $regex: queryData.locality, $options: "i" };
   if (queryData.smallPrice && queryData.bigPrice) {
     if (Number(queryData.smallPrice) > Number(queryData.bigPrice))
@@ -332,14 +1113,13 @@ exports.getAllAdsUser = async (queryData, userId) => {
       .populate("category", "name")
       .populate("subcategory", "name")
       .select(
-        "title description createdAt category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+        "title description model createdAt category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
       )
       .sort({ createdAt: -1 })
       .limit(queryData.limit)
       .skip(queryData.limit * (queryData.page - 1)),
     Ad.countDocuments(query),
   ]);
-
   return serviceResponse(200, { ads, adsCount }, "Ads fetched succefully");
 };
 
@@ -411,7 +1191,7 @@ exports.getAllAds = async (queryData, isloggedIn) => {
         .populate("category", "name")
         .populate("subcategory", "name")
         .select(
-          "title description createdAt category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+          "title description createdAt model category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
         )
         .sort({ createdAt: -1 })
         .limit(queryData.limit)
@@ -441,7 +1221,6 @@ exports.getAd = async (id, isloggedIn) => {
       .populate("category", "name")
       .populate("subcategory", "name")
       .select("-isActive -isDeleted -isVerifiedByUser -__v");
-
     return serviceResponse(200, { ad }, "Ad fetched succefully");
   }
 };

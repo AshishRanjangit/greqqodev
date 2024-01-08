@@ -8,13 +8,14 @@ const ad = new mongoose.Schema(
     price: { type: Number },
     brand: { type: String },
     model: { type: String },
+    rtoCity: { type: String },
     fuel: {
       type: String,
       enum: ["diesel", "petrol", "cng", "hybrid", "electric"],
     },
     transmission: {
       type: String,
-      enum: ["manual", "automatic"],
+      enum: ["manual", "automatic", "hybrid", "electric"],
     },
     variant: { type: String },
     manufacturingYear: { type: Number },
@@ -45,6 +46,14 @@ const ad = new mongoose.Schema(
       type: String,
       enum: ["newLaunch", "readyToMove", "underConstruction"],
     },
+    //plot
+    length: { type: Number },
+    breadth: { type: Number },
+    //electronics
+    condition: { type: String, enum: ["new", "used", "refurbished"] },
+    purchasedYear: { type: Number },
+    //furniture
+    sitting: { type: Number },
     city: { type: String },
     state: { type: String },
     locality: { type: String },
