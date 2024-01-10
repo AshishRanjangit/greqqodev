@@ -14,10 +14,13 @@ adRoute.route("/getCategory").get(adController.getCategory);
 adRoute.route("/getSubcategory").get(adController.getSubcategory);
 adRoute.route("/postAd").post(verifyToken, adController.postAd);
 adRoute.route("/updateAd/:id").patch(verifyToken, adController.updateAd);
-adRoute.route("/deleteAd/:id").delete(verifyToken, adController.deleteAd);
+adRoute
+  .route("/updateStatus/:id")
+  .patch(verifyToken, adController.changeAdStatus);
 adRoute.route("/resendOtp").post(verifyToken, adController.sendOtpAd);
 adRoute.route("/verifyOtp").post(verifyToken, adController.verifyEmailAd);
 adRoute.route("/adsUser").get(verifyToken, adController.getAllAdsUser);
 adRoute.route("/getAds").get(isLoggedIn, adController.getAllAds);
+adRoute.route("/getCompanies").get(adController.getCompanies);
 adRoute.route("/getAd/:adId").get(isLoggedIn, adController.getAd);
 module.exports = adRoute;

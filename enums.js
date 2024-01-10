@@ -7,6 +7,7 @@ exports.CategoryEnum = {
   FURNITURE: "furniture",
   MOBILEGADGET: "mobile & gadgets",
 };
+
 exports.SubcategoryEnum = {
   CAR: "car",
   REALSTATERENT: "for rent: house & appartments",
@@ -36,4 +37,27 @@ exports.SubcategoryEnum = {
   TABLET: "tablets",
   GAMECONSOLE: "games & consoles",
   ACCESSORY: "accessories",
+};
+exports.Status = {
+  PENDING: "pending",
+  CANCELLED: "cancelled",
+  VERIFIED: "verified",
+};
+
+exports.Fuel = {
+  DIESEL: "diesel",
+  PETROL: "petrol",
+  CNG: "cng",
+  HYBRID: "hybrid",
+  ELECTRIC: "electric",
+};
+exports.Transmission = {
+  MANUAL: "manual",
+  AUTOMATIC: "automatic",
+  HYBRID: "hybrid",
+  ELECTRIC: "electric",
+};
+exports.Occupancy = {
+  SHARING: "sharing",
+  NONSHARING: "non-sharing",
 };

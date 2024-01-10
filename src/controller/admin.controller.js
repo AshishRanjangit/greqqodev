@@ -23,7 +23,7 @@ exports.createSubcategory = async (req, res) => {
   return sendResponse(res, statusCode, data, message);
 };
 
-exports.getAllAdds = async (req, res) => {
+exports.getAllAds = async (req, res) => {
   let {
     page,
     limit,
@@ -38,6 +38,8 @@ exports.getAllAdds = async (req, res) => {
     smallPrice,
     bigPrice,
     locality,
+    company,
+    isActive,
     keyword,
     occupancy,
     construnction,
@@ -56,7 +58,9 @@ exports.getAllAdds = async (req, res) => {
     subcategory,
     fuel,
     transmission,
+    company,
     brand,
+    isActive,
     smallPrice,
     bigPrice,
     locality,
@@ -66,9 +70,8 @@ exports.getAllAdds = async (req, res) => {
     listedBy,
     user,
   };
-  let userId = req.user.userId;
 
-  const response = await adminService.getAllAdds(queryData);
+  const response = await adminService.getAllAds(queryData);
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };

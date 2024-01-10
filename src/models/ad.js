@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
+const { Status, Fuel, Transmission, Occupancy } = require("../../enums");
 
 const ad = new mongoose.Schema(
   {
     title: { type: String },
+    company: { type: String },
     description: { type: String },
     //for car
     price: { type: Number },
@@ -11,11 +13,11 @@ const ad = new mongoose.Schema(
     rtoCity: { type: String },
     fuel: {
       type: String,
-      enum: ["diesel", "petrol", "cng", "hybrid", "electric"],
+      enum: Object.values(Fuel),
     },
     transmission: {
       type: String,
-      enum: ["manual", "automatic", "hybrid", "electric"],
+      enum: Object.values(Transmission),
     },
     variant: { type: String },
     manufacturingYear: { type: Number },
@@ -32,7 +34,7 @@ const ad = new mongoose.Schema(
     area: { type: Number },
     occupancy: {
       type: String,
-      enum: ["sharing", "non-sharing"],
+      enum: Object.values(Occupancy),
     },
     bachelorAllowed: {
       type: Boolean,
@@ -62,16 +64,26 @@ const ad = new mongoose.Schema(
     category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
     subcategory: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
     isDeleted: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     isBlocked: { type: Boolean, default: false },
     status: {
       type: String,
-      enum: ["pending", "complete", "cancelled"],
+      enum: Object.values(Status),
       default: "pending",
     },
     isVerifiedByUser: { type: Boolean, default: false },
+    enquiryCount: { type: Number },
   },
   {
     timestamps: true,
+  }
+);
+
+ad.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 600,
+    partialFilterExpression: { isVerifiedByUser: false },
   }
 );
 
