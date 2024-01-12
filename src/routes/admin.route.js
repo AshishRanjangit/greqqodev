@@ -1,6 +1,5 @@
 const express = require("express");
 const adminController = require("../controller/admin.controller");
-// const { verifyToken } = require("../middlewares/verifyAuth");
 const {
   signInValidator,
   signupValidation,
@@ -11,20 +10,18 @@ const {
 } = require("../middlewares/expressValidationMiddleware");
 const { verifyToken, verifyRole } = require("../middlewares/verifyAuth");
 const adminRoute = express.Router();
-adminRoute.route("/createCategory").post(
-  // verifyToken, verifyRole("admin"),
-  adminController.createCategory
-);
-adminRoute.route("/createSubcategory").post(
-  // verifyToken, verifyRole("admin"),
-  adminController.createSubcategory
-);
 adminRoute
-  .route("/getAdds")
-  .get(verifyToken, verifyRole("admin"), adminController.getAllAdds);
+  .route("/createCategory")
+  .post(verifyToken, verifyRole("admin"), adminController.createCategory);
+adminRoute
+  .route("/createSubcategory")
+  .post(verifyToken, verifyRole("admin"), adminController.createSubcategory);
+adminRoute
+  .route("/getAds")
+  .get(verifyToken, verifyRole("admin"), adminController.getAllAds);
 adminRoute
   .route("/updateAdStatus/:adId")
-  .put(verifyToken, verifyRole("admin"), adminController.updateStatusAd);
+  .patch(verifyToken, verifyRole("admin"), adminController.updateStatusAd);
 adminRoute
   .route("/getAd/:adId")
   .get(verifyToken, verifyRole("admin"), adminController.getAd);
