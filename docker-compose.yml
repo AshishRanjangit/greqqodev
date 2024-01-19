@@ -6,6 +6,6 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: be
+    container_name: be-pro
     ports:
       - "5000:5000"
