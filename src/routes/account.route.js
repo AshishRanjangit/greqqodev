@@ -7,6 +7,8 @@ const {
   emailValidation,
   emailOtpValidator,
   updateUserValidation,
+  resetPasswordValidation,
+  forgetPasswordValidation,
 } = require("../validations/account.validation");
 const {
   expressValidation,
@@ -27,13 +29,27 @@ accountRoute
   .route("/verifyEmail")
   .post(emailOtpValidator, expressValidation, accountController.verifyEmail);
 accountRoute.route("/getUser").get(verifyToken, accountController.getUser);
+
+accountRoute.route("/updateUser").patch(
+  verifyToken,
+  updateUserValidation,
+  expressValidation,
+
+  accountController.updateUser
+);
 accountRoute
-  .route("/updateUser")
-  .patch(
-    verifyToken,
-    updateUserValidation,
+  .route("/forgetPassword")
+  .post(
+    forgetPasswordValidation,
     expressValidation,
-    accountController.updateUser
+    accountController.forgetPassword
+  );
+accountRoute
+  .route("/resetPassword")
+  .post(
+    resetPasswordValidation,
+    expressValidation,
+    accountController.resetPassword
   );
 
 module.exports = accountRoute;
