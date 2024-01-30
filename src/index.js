@@ -2,6 +2,7 @@ const app = require("./app");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const { connectToDb } = require("./config/dbConnect");
+const { test } = require("./utils/jstAfunction");
 
 const startServer = async () => {
   await connectToDb();

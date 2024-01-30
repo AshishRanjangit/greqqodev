@@ -38,9 +38,15 @@ exports.postAd = async (userId, data) => {
   if (data.category) {
     let user = await User.findById(userId).select("email company");
 
-    let company = await Company.findOne({ name: user.company });
+    console.log("user.company>>>>>>", user.company);
+
+    let company = await Company.findOne({
+      name: { $regex: new RegExp(`^${user.company}$`, "i") },
+    });
+
+    console.log("This is company>>>>>>>", company);
     if (!company) {
-      await Company.create({ name: user.company });
+      await Company.create({ name: user.company.toLocaleLowerCase() });
     }
 
     let category = await Category.findById(data.category).select("name");
@@ -1086,7 +1092,7 @@ exports.getAllAdsUser = async (queryData, userId) => {
       .populate("category", "name")
       .populate("subcategory", "name")
       .select(
-        "title description model createdAt isActive category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+        "title description model createdAt isActive category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy enquiryCount"
       )
       .sort({ createdAt: -1 })
       .limit(queryData.limit)
@@ -1151,7 +1157,7 @@ exports.getAllAds = async (queryData, isloggedIn) => {
         .populate("category", "name")
         .populate("subcategory", "name")
         .select(
-          "title description createdAt company category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+          "title description createdAt company category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy enquiryCount"
         )
         .sort({ createdAt: -1 })
         .limit(queryData.limit)
@@ -1167,7 +1173,7 @@ exports.getAllAds = async (queryData, isloggedIn) => {
         .populate("category", "name")
         .populate("subcategory", "name")
         .select(
-          "title description createdAt model category company subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+          "title description createdAt model category company subcategory status price locality brand fuel transmission photos construnction occupancy listedBy enquiryCount"
         )
         .sort({ createdAt: -1 })
         .limit(queryData.limit)
