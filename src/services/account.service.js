@@ -17,6 +17,11 @@ exports.sendEmailVerificationOtp = async (email) => {
     Otp.findOne({ email: data }),
   ]);
 
+  console.log("user>>>>>>>>>>>", user);
+
+  if (user.isEmailVerified === true)
+    throw new BadRequestError("User email is already verified");
+
   let otp = generateOTP(6);
   if (otpExists) {
     otpExists.otp = otp;

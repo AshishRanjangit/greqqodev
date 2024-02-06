@@ -37,6 +37,16 @@ exports.sendOtp = async (req, res) => {
   return sendResponse(res, statusCode, data, message);
 };
 
+exports.sendEmailVerificationOtp = async (req, res) => {
+  const { email } = req.body;
+
+  const response = await accountService.sendEmailVerificationOtp(email);
+
+  const { statusCode, data, message } = response;
+
+  return sendResponse(res, statusCode, data, message);
+};
+
 exports.getUser = async (req, res) => {
   const userId = req.user.userId;
   const response = await accountService.getUser(userId);
