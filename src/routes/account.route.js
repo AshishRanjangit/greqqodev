@@ -23,6 +23,13 @@ accountRoute
   .route("/signup")
   .post(signupValidation, expressValidation, accountController.signUp);
 accountRoute
+  .route("/sendEmailVerificationOtp")
+  .post(
+    emailValidation,
+    expressValidation,
+    accountController.sendEmailVerificationOtp
+  );
+accountRoute
   .route("/sendOtp")
   .post(emailValidation, expressValidation, accountController.sendOtp);
 accountRoute
