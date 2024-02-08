@@ -9,4 +9,5 @@ router.use("/account", accountRoute);
 router.use("/admin", adminRoute);
 router.use("/ads", adRoute);
 router.use("/enquiry", enquiryRoute);
+router.use("/commonRoute", commonRoute);
 module.exports = router;
