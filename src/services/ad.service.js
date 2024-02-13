@@ -9,7 +9,8 @@ const Category = require("../models/category");
 const Subcategory = require("../models/subcategory");
 const Ad = require("../models/ad");
 const User = require("../models/user");
-const { CategoryEnum, SubcategoryEnum } = require("../../enums");
+const { CategoryEnum, SubcategoryEnum, Status } = require("../../enums");
+const Company = require("../models/adCompanies");
 
 exports.getCategory = async () => {
   const category = await Category.find().select("name");
@@ -35,7 +36,16 @@ exports.getSubcategory = async (data) => {
 
 exports.postAd = async (userId, data) => {
   if (data.category) {
-    let user = await User.findById(userId).select("email");
+    let user = await User.findById(userId).select("email company");
+
+    let company = await Company.findOne({
+      name: { $regex: new RegExp(`^${user.company}$`, "i") },
+    });
+
+    if (!company) {
+      await Company.create({ name: user.company.toLocaleLowerCase() });
+    }
+
     let category = await Category.findById(data.category).select("name");
     if (!category) throw new BadRequestError("No such category exists");
     if (!data.subcategory) throw new BadRequestError("Subcategory is required");
@@ -75,7 +85,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -122,7 +136,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -165,7 +183,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -206,7 +228,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -239,9 +265,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-
-        console.log("filtered data>>>", filteredData);
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -284,7 +312,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -321,7 +353,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -356,7 +392,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -403,7 +443,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -439,7 +483,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -474,7 +522,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -505,7 +557,11 @@ exports.postAd = async (userId, data) => {
         if (data.photos) {
           filteredData.photos = data.photos;
         }
-        let ad = await Ad.create({ ...filteredData, user: userId });
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
         if (!ad)
           throw new BadRequestError("Something Went Wrong. Please try again.");
         this.sendOtpAd(user.email);
@@ -520,88 +576,6 @@ exports.postAd = async (userId, data) => {
     throw new BadRequestError("Category is required");
   }
 };
-
-// exports.updateAd = async (id, data) => {
-//   if (data.category) {
-//     let category = await Category.findById(data.category);
-//     if (!category) throw new BadRequestError("No such category exists");
-//     if (!data.subcategory) throw new BadRequestError("Subcategory is required");
-//     let subcategory = await Subcategory.findOne({
-//       _id: data.subcategory,
-//       category: data.category,
-//     });
-
-//     if (!subcategory) throw new BadRequestError("No such subcategory exists");
-
-//     if (subcategory.name === "car") {
-//       const requiredFields = [
-//         "title",
-//         "description",
-//         "price",
-//         "brand",
-//         "model",
-//         "fuel",
-//         "transmission",
-//         "variant",
-//         "manufacturingYear",
-//         "ownerShip",
-//         "manufacturingYear",
-//         "totalDriven",
-//         "city",
-//         "state",
-//       ];
-
-//       for (const field of requiredFields) {
-//         if (data[field] === undefined) {
-//           throw new BadRequestError(`${field} is a required field.`);
-//         }
-//       }
-//       let ad = await Ad.findByIdAndUpdate(id, { $set: { ...data } });
-//       if (!ad)
-//         throw new BadRequestError("Something Went Wrong. Please try again.");
-
-//       return serviceResponse(200, {}, "Ad updated successfully");
-//     }
-//     if (
-//       subcategory.name === "for rent: house & appartments" ||
-//       subcategory.name === "for sale: house & appartments"
-//     ) {
-//       const requiredFields = [
-//         "title",
-//         "description",
-//         "price",
-//         "type",
-//         "furnishing",
-//         "bedrooms",
-//         "bathrooms",
-//         "area",
-//         "city",
-//         "occupancy",
-//         "bachelorAllowed",
-//         "totalFloor",
-//         "carParking",
-//         "facing",
-//         "construnction",
-//         "city",
-//         "state",
-//         "locality",
-//       ];
-//       for (const field of requiredFields) {
-//         if (data[field] === undefined) {
-//           throw new BadRequestError(`${field} is a required field.`);
-//         }
-//       }
-//       let ad = await Ad.findByIdAndUpdate(id, { $set: { ...data } });
-
-//       if (!ad)
-//         throw new BadRequestError("Something Went Wrong. Please try again.");
-
-//       return serviceResponse(200, {}, "Ad updated successfully");
-//     }
-//   } else {
-//     throw new BadRequestError("Category is required");
-//   }
-// };
 
 exports.updateAd = async (id, data) => {
   if (data.category) {
@@ -993,16 +967,20 @@ exports.updateAd = async (id, data) => {
   }
 };
 
-exports.deleteAd = async (id, data) => {
+exports.changeAdStatus = async (id, data) => {
   if (!id) throw new BadRequestError("id is required");
 
-  let deletedData = await Ad.findByIdAndUpdate(id, {
-    $set: { isDeleted: true },
-  });
+  let ad = await Ad.findById(id).select("isActive");
+  if (!ad) {
+    throw new BadRequestError("No such ad exists with this Id");
+  }
+  let status;
+  ad.isActive ? (status = false) : (status = true);
 
-  if (!deletedData) throw new BadRequestError("No such Ad exists");
-  console.log(deletedData);
-  return serviceResponse(200, {}, "Ad deleted successfully");
+  ad.isActive = status;
+  await ad.save();
+
+  return serviceResponse(200, {}, "Ad status updated successfully");
 };
 
 exports.sendOtpAd = async (email) => {
@@ -1065,8 +1043,6 @@ exports.verifyEmailAd = async (data) => {
 
 exports.getAllAdsUser = async (queryData, userId) => {
   const query = {};
-  query.isBlocked = false;
-  // query.isDeleted = false;
   query.user = userId;
   if (queryData.status) query.status = queryData.status;
   if (queryData.category) query.category = queryData.category;
@@ -1113,7 +1089,7 @@ exports.getAllAdsUser = async (queryData, userId) => {
       .populate("category", "name")
       .populate("subcategory", "name")
       .select(
-        "title description model createdAt category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+        "title description model createdAt isActive category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy enquiryCount"
       )
       .sort({ createdAt: -1 })
       .limit(queryData.limit)
@@ -1128,8 +1104,11 @@ exports.getAllAds = async (queryData, isloggedIn) => {
 
   query.isVerifiedByUser = true;
   query.isBlocked = false;
+  // query.status = Status.VERIFIED;
   query.isDeleted = false;
+  query.isActive = true;
   if (queryData.status) query.status = queryData.status;
+  if (queryData.company) query.company = queryData.company;
   if (queryData.category) query.category = queryData.category;
   if (queryData.transmission) query.transmission = queryData.transmission;
   if (queryData.fuel) query.fuel = queryData.fuel;
@@ -1175,7 +1154,7 @@ exports.getAllAds = async (queryData, isloggedIn) => {
         .populate("category", "name")
         .populate("subcategory", "name")
         .select(
-          "title description createdAt category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+          "title description createdAt company category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy enquiryCount"
         )
         .sort({ createdAt: -1 })
         .limit(queryData.limit)
@@ -1191,7 +1170,7 @@ exports.getAllAds = async (queryData, isloggedIn) => {
         .populate("category", "name")
         .populate("subcategory", "name")
         .select(
-          "title description createdAt model category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+          "title description createdAt model category company subcategory status price locality brand fuel transmission photos construnction occupancy listedBy enquiryCount"
         )
         .sort({ createdAt: -1 })
         .limit(queryData.limit)
@@ -1223,4 +1202,12 @@ exports.getAd = async (id, isloggedIn) => {
       .select("-isActive -isDeleted -isVerifiedByUser -__v");
     return serviceResponse(200, { ad }, "Ad fetched succefully");
   }
+};
+
+exports.getCompanies = async () => {
+  const company = await Company.find({})
+    .sort({ name: -1 })
+    .select("name")
+    .lean();
+  return serviceResponse(200, { company }, "Comapanies fetched successfully");
 };

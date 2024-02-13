@@ -47,9 +47,12 @@ exports.createSubcategory = async (data) => {
   return serviceResponse(200, {}, "Subcategory created succefully");
 };
 
-exports.getAllAdds = async (queryData) => {
+exports.getAllAds = async (queryData) => {
   const query = {};
-
+  query.isVerifiedByUser = true;
+  if (queryData.status) query.status = queryData.status;
+  if (queryData.status) query.isActive = queryData.isActive;
+  if (queryData.company) query.company = queryData.company;
   if (queryData.status) query.status = queryData.status;
   if (queryData.user) query.user = queryData.user;
   if (queryData.category) query.category = queryData.category;
@@ -96,7 +99,7 @@ exports.getAllAdds = async (queryData) => {
       .populate("category", "name")
       .populate("subcategory", "name")
       .select(
-        "title description createdAt category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
+        "title description createdAt company isActive category subcategory status price locality brand fuel transmission photos construnction occupancy listedBy"
       )
       .sort({ createdAt: -1 })
       .limit(queryData.limit)
@@ -108,8 +111,13 @@ exports.getAllAdds = async (queryData) => {
 };
 
 exports.updateStatusAd = async (id, status) => {
-  let ad = await Ad.findByIdAndUpdate(id, { $set: status });
-  if (ad) {
+  console.log("This is id : ", id, " this is status : ", status);
+  let ad = await Ad.findByIdAndUpdate(
+    id,
+    { $set: { status: status } },
+    { runValidators: true, new: true }
+  );
+  if (!ad) {
     throw new BadRequestError("No such ads found with this Id");
   }
   return serviceResponse(200, { ad }, "Ad status updated succesfully");
@@ -123,20 +131,20 @@ exports.getAd = async (id) => {
     )
     .populate("category", "name")
     .populate("subcategory", "name");
-  if (ad) {
+  if (!ad) {
     throw new BadRequestError("No such ads found with this Id");
   }
-  return serviceResponse(200, { ad }, "Ad fetched succefully");
+  return serviceResponse(200, { ad }, "Ad fetched successfully");
 };
 
 exports.getUsers = async (queryData) => {
   const query = {};
   if (queryData.keyword) {
     query["$or"] = [
-      { description: { $regex: queryData.keyword, $options: "i" } }, // case-insensitive
-      { title: { $regex: queryData.keyword, $options: "i" } },
-      { locality: { $regex: queryData.keyword, $options: "i" } },
-      { brand: { $regex: queryData.keyword, $options: "i" } },
+      { userName: { $regex: queryData.keyword, $options: "i" } }, // case-insensitive
+      { phoneNumber: { $regex: queryData.keyword, $options: "i" } },
+      { company: { $regex: queryData.keyword, $options: "i" } },
+      { email: { $regex: queryData.keyword, $options: "i" } },
     ];
   }
   let users = await User.find(query)
