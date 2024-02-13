@@ -57,13 +57,13 @@ exports.signupValidation = [
 
     .isLength({ max: 20 })
     .withMessage("Password cannot 20 characters "),
-  body("password")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/
-    )
-    .withMessage(
-      "Password must contain at least one lowercase letter, one uppercase letter, one number, and one of the special symbols @$!%*?#"
-    ),
+  // body("password")
+  //   .matches(
+  //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/
+  //   )
+  //   .withMessage(
+  //     "Password must contain at least one lowercase letter, one uppercase letter, one number, and one of the special symbols @$!%*?#"
+  //   ),
   body("company")
     .optional()
     .isString()
