@@ -1,14 +1,5 @@
 const adService = require("../services/ad.service");
 const { sendResponse } = require("../utils/sendResponse");
-exports.signIn = async (req, res) => {
-  const { email, password, otp } = req.body;
-
-  const response = await accountService.signIn({ email, password, otp });
-
-  const { statusCode, data, message } = response;
-
-  return sendResponse(res, statusCode, data, message);
-};
 
 exports.getCategory = async (req, res) => {
   const response = await adService.getCategory();
@@ -39,9 +30,9 @@ exports.updateAd = async (req, res) => {
   return sendResponse(res, statusCode, data, message);
 };
 
-exports.deleteAd = async (req, res) => {
+exports.changeAdStatus = async (req, res) => {
   const id = req.params.id;
-  const response = await adService.deleteAd(id);
+  const response = await adService.changeAdStatus(id);
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
@@ -103,8 +94,6 @@ exports.getAllAdsUser = async (req, res) => {
   };
   let userId = req.user.userId;
 
-  console.log("This is userId", userId);
-
   const response = await adService.getAllAdsUser(queryData, userId);
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
@@ -120,6 +109,7 @@ exports.getAllAds = async (req, res) => {
     category,
     subcategory,
     fuel,
+    company,
     transmission,
     brand,
     smallPrice,
@@ -143,6 +133,7 @@ exports.getAllAds = async (req, res) => {
     fuel,
     transmission,
     brand,
+    company,
     smallPrice,
     bigPrice,
     locality,
@@ -163,6 +154,12 @@ exports.getAd = async (req, res) => {
   let id = req.params.adId;
 
   const response = await adService.getAd(id, isloggedIn);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getCompanies = async (req, res) => {
+  const response = await adService.getCompanies();
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };

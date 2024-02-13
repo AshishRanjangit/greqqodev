@@ -20,11 +20,7 @@ exports.verifyEmail = async (req, res) => {
 exports.signUp = async (req, res) => {
   const userData = req.body;
 
-  console.log(userData);
-
   const response = await accountService.signUp(userData);
-
-  console.log(response);
 
   const { statusCode, data, message } = response;
 
@@ -35,6 +31,16 @@ exports.sendOtp = async (req, res) => {
   const { email } = req.body;
 
   const response = await accountService.sendOtp(email);
+
+  const { statusCode, data, message } = response;
+
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.sendEmailVerificationOtp = async (req, res) => {
+  const { email } = req.body;
+
+  const response = await accountService.sendEmailVerificationOtp(email);
 
   const { statusCode, data, message } = response;
 
@@ -52,6 +58,20 @@ exports.updateUser = async (req, res) => {
   const userId = req.user.userId;
   const userData = req.body;
   const response = await accountService.updateUser(userId, userData);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.forgetPassword = async (req, res) => {
+  const email = req.body.email;
+  const response = await accountService.forgetPassword(email);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+  const response = await accountService.resetPassword(token, newPassword);
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };

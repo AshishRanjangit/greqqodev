@@ -1,0 +1,11 @@
+version: "3.4"
+services:
+  backend:
+    image: be:latest
+    restart: always
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: be
+    ports:
+      - "5000:5000"

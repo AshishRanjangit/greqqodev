@@ -107,3 +107,25 @@ exports.updateUserValidation = [
       return true;
     }),
 ];
+
+exports.forgetPasswordValidation = [
+  body("email").isEmail().withMessage("Please enter a valid email Id"),
+];
+
+exports.resetPasswordValidation = [
+  body("newPassword")
+    .isLength({ min: 8 })
+    .withMessage("Password should be of atleast 8 characters ")
+
+    .isLength({ max: 20 })
+    .withMessage("Password cannot 20 characters "),
+  body("newPassword")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&_#]{8,}$/
+    )
+    .withMessage(
+      "Password must contain at least one lowercase letter, one uppercase letter, one number, and one of the special symbols @$!%_*?#"
+    ),
+
+  body("token").isString().withMessage("token is a required field"),
+];
