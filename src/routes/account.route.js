@@ -9,6 +9,7 @@ const {
   updateUserValidation,
   resetPasswordValidation,
   forgetPasswordValidation,
+  addCompanyValidation,
 } = require("../validations/account.validation");
 const {
   expressValidation,
@@ -44,6 +45,11 @@ accountRoute.route("/updateUser").patch(
 
   accountController.updateUser
 );
+
+accountRoute.route("/getCompanies").get(accountController.getCompanyList);
+accountRoute
+  .route("/addCompany")
+  .post(addCompanyValidation, expressValidation, accountController.addCompany);
 accountRoute
   .route("/forgetPassword")
   .post(
