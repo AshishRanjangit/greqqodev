@@ -43,7 +43,7 @@ exports.postAd = async (userId, data) => {
     });
 
     if (!company) {
-      await Company.create({ name: user.company.toLocaleLowerCase() });
+      await Company.create({ name: user.company });
     }
 
     let category = await Category.findById(data.category).select("name");
