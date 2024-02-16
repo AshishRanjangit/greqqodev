@@ -9,6 +9,7 @@ const { sendEmail } = require("../utils/sendMail");
 const crypto = require("crypto");
 const { promises } = require("nodemailer/lib/xoauth2");
 const { emailDomain } = require("../../enums");
+const CompanyList = require("../models/companies");
 
 exports.sendEmailVerificationOtp = async (email) => {
   let data = email.toLocaleLowerCase();
@@ -282,4 +283,43 @@ exports.resetPassword = async (token, newPassword) => {
   user.resetTokenExpiration = undefined;
   await user.save();
   return serviceResponse(200, {}, "Password reset successful. Please login.");
+};
+
+exports.getCompanyList = async (queryData) => {
+  const query = {};
+
+  if (queryData.keyword) {
+    query.name = { $regex: queryData.keyword, $options: "i" }; // case-insensitive
+  }
+
+  const [companies, companiesCount] = await Promise.all([
+    CompanyList.find(query)
+      .select("name")
+      .sort({ name: 1 })
+      .limit(queryData.limit)
+      .skip(queryData.limit * (queryData.page - 1))
+      .lean(),
+    CompanyList.countDocuments(query).lean(),
+  ]);
+
+  return serviceResponse(
+    200,
+    { companies, companiesCount },
+    "Company list fetched succesfully"
+  );
+};
+
+exports.addCompany = async (name) => {
+  let company = await CompanyList.findOne({
+    name: {
+      $regex: new RegExp(`^${name}$`, "i"),
+    },
+  });
+
+  console.log(company);
+
+  if (company) throw new BadRequestError("Company already exists");
+
+  await CompanyList.create({ name });
+  return serviceResponse(200, {}, "Company added successfully");
 };

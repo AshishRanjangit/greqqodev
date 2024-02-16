@@ -75,3 +75,24 @@ exports.resetPassword = async (req, res) => {
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+
+exports.getCompanyList = async (req, res) => {
+  let { page, limit, keyword } = req.query;
+  page = page ? page : 1;
+  limit = limit ? limit : 10;
+  let queryData = {
+    page,
+    limit,
+    keyword,
+  };
+  const response = await accountService.getCompanyList(queryData);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.addCompany = async (req, res) => {
+  let { name } = req.body;
+  const response = await accountService.addCompany(name);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};

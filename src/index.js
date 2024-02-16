@@ -6,7 +6,6 @@ const { test } = require("./utils/jstAfunction");
 
 const startServer = async () => {
   await connectToDb();
-
   const PORT = process.env.PORT;
   app.listen(PORT || "6000", () =>
     console.log(`👉👉 App listening on port ${PORT || "6000"} 👈👈`)
