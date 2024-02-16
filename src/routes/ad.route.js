@@ -22,5 +22,7 @@ adRoute.route("/verifyOtp").post(verifyToken, adController.verifyEmailAd);
 adRoute.route("/adsUser").get(verifyToken, adController.getAllAdsUser);
 adRoute.route("/getAds").get(isLoggedIn, adController.getAllAds);
 adRoute.route("/getCompanies").get(adController.getCompanies);
+adRoute.route("/getBikeBrands").get(adController.getBikeBrands);
+adRoute.route("/getBikeModel").post(adController.getBikeModels);
 adRoute.route("/getAd/:adId").get(isLoggedIn, adController.getAd);
 module.exports = adRoute;
