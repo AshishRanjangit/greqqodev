@@ -11,6 +11,8 @@ const Ad = require("../models/ad");
 const User = require("../models/user");
 const { CategoryEnum, SubcategoryEnum, Status } = require("../../enums");
 const Company = require("../models/adCompanies");
+const BikeList = require("../models/bikeList");
+const { set } = require("../app");
 
 exports.getCategory = async () => {
   const category = await Category.find().select("name");
@@ -1202,6 +1204,31 @@ exports.getAd = async (id, isloggedIn) => {
       .select("-isActive -isDeleted -isVerifiedByUser -__v");
     return serviceResponse(200, { ad }, "Ad fetched succefully");
   }
+};
+
+exports.getBikeBrands = async () => {
+  const brands = await BikeList.find({}).select("brand").limit(Infinity).lean();
+  const uniqueBrands = [...new Set(brands.map((item) => item.brand))];
+  uniqueBrands.sort();
+  return serviceResponse(
+    200,
+    { uniqueBrands },
+    "Bike brands fetched succefully"
+  );
+};
+
+exports.getBikeModels = async (brand) => {
+  const models = await BikeList.find({ brand })
+    .select("model")
+    .limit(Infinity)
+    .lean();
+  const uniqueModels = [...new Set(models.map((item) => item.model))];
+  uniqueModels.sort();
+  return serviceResponse(
+    200,
+    { uniqueModels },
+    "Bike models fetched succefully"
+  );
 };
 
 exports.getCompanies = async () => {
