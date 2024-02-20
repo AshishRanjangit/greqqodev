@@ -466,14 +466,8 @@ exports.postAd = async (userId, data) => {
           "title",
           "description",
           "price",
-          "type",
-          "length",
-          "breadth",
-          "area",
-          "facing",
           "city",
           "state",
-          "locality",
         ];
         const filteredData = {};
         for (const field of requiredFields) {
