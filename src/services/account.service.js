@@ -59,7 +59,7 @@ exports.signIn = async (data) => {
 
   if (!user)
     throw new NotFoundError(
-      `User with email ${data.email.toLocaleLowerCase()} not found`
+      `User ID ${data.email.toLocaleLowerCase()} is not registered with us,click on create account`
     );
 
   if (user.isEmailVerified === false) {

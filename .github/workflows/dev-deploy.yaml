@@ -1,0 +1,43 @@
+name: CICD for Youtube
+
+on:
+  push:
+    branches:
+        - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use node js
+        uses: actions/setup-node@v1
+        with:
+         node-version: ${{ matrix.node-version }}
+      - name: npm install and build
+        run: |
+          npm install
+          npm run build
+
+        env: 
+          CI: true   
+
+
+  depoly:
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+     - name: SSH deploy
+       uses: appleboy/ssh-action@master
+       with:
+          host: ${{ secrets.HOST }}
+          username:  ${{ secrets.USER }}
+          key:  ${{ secrets.KEY }}
+          port:  ${{ secrets.PORT }}
+          script: |
+              bash deploy.sh
