@@ -15,6 +15,7 @@ const user = new mongoose.Schema(
     city: { type: String },
     state: { type: String },
     address: { type: String },
+    firstName:{type:String},
     pincode: { type: Number },
     isActive: { type: Boolean, default: true },
     resetToken: { type: String },
