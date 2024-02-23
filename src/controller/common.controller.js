@@ -3,6 +3,7 @@ const { sendResponse } = require("../utils/sendResponse");
 
 exports.uploadFile = async (req, res) => {
   const file = req.file;
+
   const response = await commonService.uploadFile(file);
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
