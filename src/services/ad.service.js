@@ -12,6 +12,7 @@ const User = require("../models/user");
 const { CategoryEnum, SubcategoryEnum, Status } = require("../../enums");
 const Company = require("../models/adCompanies");
 const BikeList = require("../models/bikeList");
+const CarList = require("../models/carList")
 const { set } = require("../app");
 
 exports.getCategory = async () => {
@@ -1222,6 +1223,31 @@ exports.getBikeModels = async (brand) => {
     200,
     { uniqueModels },
     "Bike models fetched succefully"
+  );
+};
+
+exports.getCarBrands = async () => {
+  const brands = await CarList.find({}).select("brand").limit(Infinity).lean();
+  const uniqueBrands = [...new Set(brands.map((item) => item.brand))];
+  uniqueBrands.sort();
+  return serviceResponse(
+    200,
+    { uniqueBrands },
+    "Car brands fetched succefully"
+  );
+};
+
+exports.getCarModels = async (brand) => {
+  const models = await CarList.find({ brand })
+    .select("model")
+    .limit(Infinity)
+    .lean();
+  const uniqueModels = [...new Set(models.map((item) => item.model))];
+  uniqueModels.sort();
+  return serviceResponse(
+    200,
+    { uniqueModels },
+    "Car models fetched succefully"
   );
 };
 

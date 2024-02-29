@@ -170,6 +170,19 @@ exports.getBikeModels = async (req, res) => {
   return sendResponse(res, statusCode, data, message);
 };
 
+exports.getCarBrands = async (req, res) => {
+  const response = await adService.getCarBrands();
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getCarModels = async (req, res) => {
+  const brand = req.body.brand;
+  const response = await adService.getCarModels(brand);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
 exports.getCompanies = async (req, res) => {
   const response = await adService.getCompanies();
   const { statusCode, data, message } = response;
