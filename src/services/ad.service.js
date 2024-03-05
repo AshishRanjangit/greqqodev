@@ -13,6 +13,7 @@ const { CategoryEnum, SubcategoryEnum, Status } = require("../../enums");
 const Company = require("../models/adCompanies");
 const BikeList = require("../models/bikeList");
 const { set } = require("../app");
+const Enquiry = require("../models/adEnquiry");
 
 exports.getCategory = async () => {
   const category = await Category.find().select("name");
@@ -1143,10 +1144,7 @@ exports.getAllAds = async (queryData, isloggedIn) => {
   if (isloggedIn) {
     const [ads, adsCount] = await Promise.all([
       Ad.find(query)
-        .populate(
-          "user",
-          "userName email  phoneNumber  company state city address pincode  "
-        )
+        .populate("user", "userName company")
         .populate("category", "name")
         .populate("subcategory", "name")
         .select(
@@ -1178,13 +1176,19 @@ exports.getAllAds = async (queryData, isloggedIn) => {
   }
 };
 
-exports.getAd = async (id, isloggedIn) => {
+exports.getAd = async (id, isloggedIn, userId) => {
   if (isloggedIn) {
+    let enquiry = await Enquiry.findOne({ ad: id, enquiryUser: userId }).select(
+      "shareDetails"
+    );
+    let populateUser = "userName   company state city address pincode";
+    if (enquiry?.shareDetails === true) {
+      populateUser =
+        "userName email  phoneNumber  company state city address pincode";
+    }
+
     const ad = await Ad.findById(id)
-      .populate(
-        "user",
-        "userName email  phoneNumber  company state city address pincode"
-      )
+      .populate("user", populateUser)
       .populate("category", "name")
       .populate("subcategory", "name")
       .select("-isActive -isDeleted -isVerifiedByUser -__v");

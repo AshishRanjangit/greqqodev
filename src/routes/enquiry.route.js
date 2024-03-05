@@ -21,4 +21,10 @@ enquiryRoute
 enquiryRoute
   .route("/deleteEnquiry/:enquiryId")
   .delete(verifyToken, enquiryController.deleteEnquiry);
+enquiryRoute
+  .route("/getEnquiryBuyer/:enquiryId")
+  .get(verifyToken, enquiryController.getEnquiryBuyer);
+enquiryRoute
+  .route("/shareDetailsEnquiry/:enquiryId")
+  .patch(verifyToken, enquiryController.shareDetailsEnquiry);
 module.exports = enquiryRoute;
