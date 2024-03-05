@@ -86,3 +86,21 @@ exports.deleteEnquiry = async (req, res) => {
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+
+exports.getEnquiryBuyer = async (req, res) => {
+  let enquiryId = req.params.enquiryId;
+  let userId = req.user.userId;
+
+  const response = await enquiryService.getEnquiryBuyer(userId, enquiryId);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.shareDetailsEnquiry = async (req, res) => {
+  let enquiryId = req.params.enquiryId;
+  let userId = req.user.userId;
+
+  const response = await enquiryService.shareDetailsEnquiry(userId, enquiryId);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};

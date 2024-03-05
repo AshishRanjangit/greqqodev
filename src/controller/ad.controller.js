@@ -151,12 +151,14 @@ exports.getAllAds = async (req, res) => {
 
 exports.getAd = async (req, res) => {
   let isloggedIn = req.isloggedIn;
+  let userId = req.user.userId;
   let id = req.params.adId;
 
-  const response = await adService.getAd(id, isloggedIn);
+  const response = await adService.getAd(id, isloggedIn, userId);
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+
 exports.getBikeBrands = async (req, res) => {
   const response = await adService.getBikeBrands();
   const { statusCode, data, message } = response;
