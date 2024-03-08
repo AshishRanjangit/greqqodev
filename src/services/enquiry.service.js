@@ -6,9 +6,13 @@ const User = require("../models/user");
 const { CategoryEnum, SubcategoryEnum, Status } = require("../../enums");
 const Company = require("../models/adCompanies");
 const Enquiry = require("../models/adEnquiry");
+const { sendEmail } = require("../utils/sendMail");
 
 exports.postEnquiry = async (userId, adId) => {
-  const ad = await Ad.findById(adId).select("user _id enquiryCount");
+  const [ad, user] = await Promise.all([
+    Ad.findById(adId).select("user _id enquiryCount title description"),
+    User.findById(userId).select("email"),
+  ]);
   if (!ad) {
     throw new BadRequestError("No ad with this Id found");
   }
@@ -18,7 +22,30 @@ exports.postEnquiry = async (userId, adId) => {
       enquiryUser: userId,
     });
     if (!enquiry) {
-      await Enquiry.create({ user: ad.user, ad: ad._id, enquiryUser: userId });
+      enquiry = await Enquiry.create({
+        user: ad.user,
+        ad: ad._id,
+        enquiryUser: userId,
+      });
+      let options = {
+        email: user.email,
+        subject: `Your Ad Enquiry Has Been Successfully Submitted!`,
+        message: `Dear User,
+    
+        We hope this message finds you well. We want to inform you that your ad enquiry for the listing titled ${ad.title} has been successfully created. Once the seller approves your request, you will be able to access the details and contact information.
+        
+        Thank you for using our platform, and feel free to reach out if you have any further questions or need assistance.
+        
+        Best regards,
+        Greqqo`,
+      };
+
+      sendEmail(options);
+
+      if (!enquiry)
+        throw new BadRequestError(
+          "Something went wrong please try again later."
+        );
       if (!ad.enquiryCount) {
         ad.enquiryCount = 1;
       } else {
@@ -27,7 +54,12 @@ exports.postEnquiry = async (userId, adId) => {
       await ad.save();
     }
   }
-  return serviceResponse(200, {}, "Enquiry Added succefully");
+
+  return serviceResponse(
+    200,
+    {},
+    "Your Ad Enquiry Has Been Successfully Submitted!"
+  );
 };
 
 exports.getEnquiriesBuyer = async (userId, queryData) => {
@@ -67,10 +99,7 @@ exports.getEnquiriesBuyer = async (userId, queryData) => {
   const [enquiry, enquiryCount] = await Promise.all([
     Enquiry.find(query)
       .select("user ad status createdAt")
-      .populate(
-        "user",
-        "userName email phoneNumber company city state address pincode profilePicture"
-      )
+      .populate("user", "userName company state city address pincode")
       .populate("ad", "title description price photos")
       .sort({ createdAt: -1 })
       .limit(queryData.limit)
@@ -83,6 +112,26 @@ exports.getEnquiriesBuyer = async (userId, queryData) => {
     { enquiry, enquiryCount: enquiryCount },
     "Enquiries fetched successfully"
   );
+};
+
+exports.getEnquiryBuyer = async (userId, enquiryId) => {
+  let query = {};
+  query.enquiryUser = userId;
+  query._id = enquiryId;
+
+  const enquiry = await Enquiry.findOne(query).select("shareDetails").lean();
+  if (!enquiry)
+    throw new BadRequestError("No such enquiry with this Id exists");
+  let populateSeller = "userName company state city address pincode";
+  if (enquiry.shareDetails === true)
+    populateSeller =
+      "userName email phoneNumber company city state address pincode profilePicture";
+
+  let data = await Enquiry.findOne(query)
+    .select("user ad status createdAt")
+    .populate("ad", "title description price photos")
+    .populate("user", populateSeller);
+  return serviceResponse(200, { data }, "Enquiry fetched successfully");
 };
 
 exports.getEnquiriesSeller = async (userId, queryData) => {
@@ -119,7 +168,7 @@ exports.getEnquiriesSeller = async (userId, queryData) => {
   }
   const [enquiry, enquiryCount] = await Promise.all([
     Enquiry.find(query)
-      .select("enquiryUser ad status createdAt")
+      .select("enquiryUser ad status createdAt shareDetails")
       .populate(
         "enquiryUser",
         "userName email phoneNumber company city state address pincode profilePicture"
@@ -175,7 +224,7 @@ exports.getEnquiriesOnAd = async (userId, adId, queryData) => {
 
   const [enquiry, enquiryCount] = await Promise.all([
     Enquiry.find(query)
-      .select("enquiryUser ad status createdAt")
+      .select("enquiryUser ad status createdAt shareDetails")
       .populate(
         "enquiryUser",
         "userName email phoneNumber company city state address pincode profilePicture"
@@ -210,6 +259,44 @@ exports.updateEnquiryStatus = async (userId, enquiryId, status) => {
   await enquiry.save();
 
   return serviceResponse(200, {}, "Status updated successfully");
+};
+
+exports.shareDetailsEnquiry = async (userId, enquiryId) => {
+  let query = {};
+  query.user = userId;
+  query._id = enquiryId;
+
+  let enquiry = await Enquiry.findOne(query)
+    .select("enquiryUser shareDetails")
+    .populate("ad", "title")
+    .populate("enquiryUser", "email");
+
+  if (!enquiry)
+    throw new BadRequestError("No such enquiry with this Id exists");
+
+  if (enquiry.shareDetails === false) {
+    enquiry.shareDetails = true;
+
+    let options = {
+      email: enquiry.enquiryUser.email,
+      subject: `Exciting News: Your Ad Enquiry Accepted! Seller's Contact Details Shared`,
+      message: `Dear User,
+  
+      We are thrilled to inform you that your ad enquiry for ad : ${enquiry.ad.title} has been accepted by the seller. You can now access the seller's contact details to proceed with your inquiry.
+
+      To get in touch with the seller, simply visit the website and navigate to the "My Enquiries" section. There, you'll find the necessary information to connect with them.
+      
+      Thank you for using Greqqo, and should you have any further questions or assistance needed, feel free to reach out.
+     
+      Best regards,
+      Greqqo`,
+    };
+
+    await enquiry.save();
+    sendEmail(options);
+  }
+
+  return serviceResponse(200, {}, "Contact Details shared with the buyer");
 };
 
 exports.deleteEnquiry = async (userId, enquiryId) => {
