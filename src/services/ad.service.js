@@ -1251,6 +1251,20 @@ exports.getCarModels = async (brand) => {
   );
 };
 
+exports.getCarVariant = async (model)=>{
+  const variant = await CarList.find({model})
+  .select("variant")
+  .limit(Infinity)
+  .lean();
+  const uniqueVariant = [...new Set(variant.map((item)=>item.variant))];
+  uniqueVariant.sort();
+  return serviceResponse(
+    200,
+    {uniqueVariant},
+    "car varient fetched succefully"
+  );
+}
+
 exports.getCompanies = async () => {
   const company = await Company.find({})
     .sort({ name: -1 })

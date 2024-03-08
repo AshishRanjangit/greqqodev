@@ -183,6 +183,13 @@ exports.getCarModels = async (req, res) => {
   return sendResponse(res, statusCode, data, message);
 };
 
+exports.getCarVariant = async (req, res) => {
+  const variant = req.body.model;
+  const response = await adService.getCarVariant(variant);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
 exports.getCompanies = async (req, res) => {
   const response = await adService.getCompanies();
   const { statusCode, data, message } = response;

@@ -4,6 +4,7 @@ const carList = new mongoose.Schema(
   {
     brand: { type: String },
     model: { type: String },
+    variant: { type: String }
   },
   {
     timestamps: true,
