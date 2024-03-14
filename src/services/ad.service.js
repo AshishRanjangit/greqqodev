@@ -12,8 +12,10 @@ const User = require("../models/user");
 const { CategoryEnum, SubcategoryEnum, Status } = require("../../enums");
 const Company = require("../models/adCompanies");
 const BikeList = require("../models/bikeList");
+const CarList = require("../models/carList")
 const { set } = require("../app");
 const Enquiry = require("../models/adEnquiry");
+const Appliance = require("../models/applianceModel")
 
 exports.getCategory = async () => {
   const category = await Category.find().select("name");
@@ -106,13 +108,11 @@ exports.postAd = async (userId, data) => {
     if (category.name === CategoryEnum.ELECTRONICS) {
       if (
         subcategory.name === SubcategoryEnum.LAPTOP ||
-        subcategory.name === SubcategoryEnum.COMPUTERACCESSORIES ||
         subcategory.name === SubcategoryEnum.TVSPEAKERS ||
         subcategory.name === SubcategoryEnum.FRIDGE ||
         subcategory.name === SubcategoryEnum.WASHINGMACHINE ||
         subcategory.name === SubcategoryEnum.camera ||
-        subcategory.name === SubcategoryEnum.AC ||
-        subcategory.name === SubcategoryEnum.OTHERAPPLIANCE
+        subcategory.name === SubcategoryEnum.AC
       ) {
         const requiredFields = [
           "title",
@@ -121,9 +121,49 @@ exports.postAd = async (userId, data) => {
           "subcategory",
           "price",
           "brand",
-          "model",
           "purchasedYear",
           "condition",
+          "city",
+          "state",
+        ];
+
+        const filteredData = {};
+        for (const field of requiredFields) {
+          if (data[field] === undefined) {
+            throw new BadRequestError(`${field} is a required field.`);
+          }
+          filteredData[field] = data[field];
+        }
+
+        if (data.photos) {
+          filteredData.photos = data.photos;
+        }
+        let ad = await Ad.create({
+          ...filteredData,
+          user: userId,
+          company: user.company,
+        });
+        if (!ad)
+          throw new BadRequestError("Something Went Wrong. Please try again.");
+        this.sendOtpAd(user.email);
+        return serviceResponse(
+          200,
+          { id: ad._id },
+          `An Otp for verification has been sent to your email: ${user.email}`
+        );
+      } else if (
+        subcategory.name === SubcategoryEnum.OTHERAPPLIANCE ||
+        subcategory.name === SubcategoryEnum.COMPUTERACCESSORIES
+      ) {
+        const requiredFields = [
+          "title",
+          "description",
+          "category",
+          "subcategory",
+          // "price",
+          // "brand",
+          // "purchasedYear",
+          // "condition",
           "city",
           "state",
         ];
@@ -1229,6 +1269,45 @@ exports.getBikeModels = async (brand) => {
   );
 };
 
+exports.getCarBrands = async () => {
+  const brands = await CarList.find({}).select("brand").limit(Infinity).lean();
+  const uniqueBrands = [...new Set(brands.map((item) => item.brand))];
+  uniqueBrands.sort();
+  return serviceResponse(
+    200,
+    { uniqueBrands },
+    "Car brands fetched succefully"
+  );
+};
+
+exports.getCarModels = async (brand) => {
+  const models = await CarList.find({ brand })
+    .select("model")
+    .limit(Infinity)
+    .lean();
+  const uniqueModels = [...new Set(models.map((item) => item.model))];
+  uniqueModels.sort();
+  return serviceResponse(
+    200,
+    { uniqueModels },
+    "Car models fetched succefully"
+  );
+};
+
+exports.getCarVariant = async (model) => {
+  const variant = await CarList.find({ model })
+    .select("variant")
+    .limit(Infinity)
+    .lean();
+  const uniqueVariant = [...new Set(variant.map((item) => item.variant))];
+  uniqueVariant.sort();
+  return serviceResponse(
+    200,
+    { uniqueVariant },
+    "car varient fetched succefully"
+  );
+}
+
 exports.getCompanies = async () => {
   const company = await Company.find({})
     .sort({ name: -1 })
@@ -1236,3 +1315,18 @@ exports.getCompanies = async () => {
     .lean();
   return serviceResponse(200, { company }, "Comapanies fetched successfully");
 };
+
+exports.getBrandsByApplianceKey = async (applianceKey) => {
+  try {
+    const appliance = await Appliance.findOne({ key: applianceKey });
+
+    if (!appliance) {
+      return null;
+    }
+
+    return appliance.brands;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

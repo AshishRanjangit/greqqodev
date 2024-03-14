@@ -99,7 +99,7 @@ exports.getEnquiriesBuyer = async (userId, queryData) => {
   const [enquiry, enquiryCount] = await Promise.all([
     Enquiry.find(query)
       .select("user ad status createdAt")
-      .populate("user", "userName company state city address pincode")
+      .populate("user", "userName company state city address pincode email phoneNumber")
       .populate("ad", "title description price photos")
       .sort({ createdAt: -1 })
       .limit(queryData.limit)
