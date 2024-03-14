@@ -197,3 +197,40 @@ exports.getCompanies = async (req, res) => {
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+
+// async function getBrands(req, res) {
+//   const applianceKey = req.params.applianceKey;
+
+//   try {
+//     const brands = await applianceService.getBrandsByApplianceKey(applianceKey);
+
+//     if (!brands) {
+//       return res.status(404).json({ error: 'Appliance not found' });
+//     }
+
+//     res.json({ brands });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// }
+
+exports.getBrands = async (req, res)=>{
+  const applianceKey = req.params.applianceKey;
+  try {
+    console.log('Searching for appliance with key:', applianceKey);
+    const brands = await adService.getBrandsByApplianceKey(applianceKey);
+
+    if (!brands) {
+      console.log('Appliance not found');
+      return res.status(404).json({ error: 'Appliance not found' });
+    }
+
+    console.log('Found brands:', brands);
+    res.json({ brands });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+
+}

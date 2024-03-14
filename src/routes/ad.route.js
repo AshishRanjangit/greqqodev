@@ -28,4 +28,5 @@ adRoute.route("/getCarBrands").get(adController.getCarBrands);
 adRoute.route("/getCarModel").post(adController.getCarModels);
 adRoute.route("/getCarVariant").post(adController.getCarVariant);
 adRoute.route("/getAd/:adId").get(isLoggedIn, adController.getAd);
+adRoute.route("/brands/:applianceKey").get(adController.getBrands)
 module.exports = adRoute;
