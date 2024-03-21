@@ -24,5 +24,9 @@ adRoute.route("/getAds").get(isLoggedIn, adController.getAllAds);
 adRoute.route("/getCompanies").get(adController.getCompanies);
 adRoute.route("/getBikeBrands").get(adController.getBikeBrands);
 adRoute.route("/getBikeModel").post(adController.getBikeModels);
+adRoute.route("/getCarBrands").get(adController.getCarBrands);
+adRoute.route("/getCarModel").post(adController.getCarModels);
+adRoute.route("/getCarVariant").post(adController.getCarVariant);
 adRoute.route("/getAd/:adId").get(isLoggedIn, adController.getAd);
+adRoute.route("/brands/:applianceKey").get(adController.getBrands)
 module.exports = adRoute;

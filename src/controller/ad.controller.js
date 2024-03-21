@@ -172,8 +172,65 @@ exports.getBikeModels = async (req, res) => {
   return sendResponse(res, statusCode, data, message);
 };
 
+exports.getCarBrands = async (req, res) => {
+  const response = await adService.getCarBrands();
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getCarModels = async (req, res) => {
+  const brand = req.body.brand;
+  const response = await adService.getCarModels(brand);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
+exports.getCarVariant = async (req, res) => {
+  const variant = req.body.model;
+  const response = await adService.getCarVariant(variant);
+  const { statusCode, data, message } = response;
+  return sendResponse(res, statusCode, data, message);
+};
+
 exports.getCompanies = async (req, res) => {
   const response = await adService.getCompanies();
   const { statusCode, data, message } = response;
   return sendResponse(res, statusCode, data, message);
 };
+
+// async function getBrands(req, res) {
+//   const applianceKey = req.params.applianceKey;
+
+//   try {
+//     const brands = await applianceService.getBrandsByApplianceKey(applianceKey);
+
+//     if (!brands) {
+//       return res.status(404).json({ error: 'Appliance not found' });
+//     }
+
+//     res.json({ brands });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// }
+
+exports.getBrands = async (req, res)=>{
+  const applianceKey = req.params.applianceKey;
+  try {
+    console.log('Searching for appliance with key:', applianceKey);
+    const brands = await adService.getBrandsByApplianceKey(applianceKey);
+
+    if (!brands) {
+      console.log('Appliance not found');
+      return res.status(404).json({ error: 'Appliance not found' });
+    }
+
+    console.log('Found brands:', brands);
+    res.json({ brands });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+
+}
